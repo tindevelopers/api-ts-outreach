@@ -10,7 +10,7 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 
 | Secret Name | Description | How to Get |
 |-------------|-------------|------------|
-| `GCP_PROJECT_ID` | Your Google Cloud Project ID | From Google Cloud Console |
+| `GCP_PROJECT_ID` | Your Google Cloud Project ID | `endless-station-471909-a8` |
 | `GCP_SA_KEY` | Service Account JSON Key | Generated from Google Cloud Console |
 
 ### 2. Database Configuration

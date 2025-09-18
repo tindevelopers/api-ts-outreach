@@ -227,3 +227,4 @@ build/
 # Test outputs
 test-results/
 playwright-report/
+*.json

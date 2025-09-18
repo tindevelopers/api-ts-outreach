@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: endless-station-471909-a8
   SERVICE_NAME: api-outreach-service
   REGION: us-central1
 
