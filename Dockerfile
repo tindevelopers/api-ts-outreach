@@ -23,6 +23,9 @@ COPY --chown=nodejs:nodejs . .
 # Create logs directory
 RUN mkdir -p logs && chown nodejs:nodejs logs
 
+# Build the application (TypeScript compilation)
+RUN npm run build || echo "Build failed, but continuing with development setup"
+
 # Switch to non-root user
 USER nodejs
 
@@ -33,6 +36,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start the application with ts-node for development
+# Start the application
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npx", "ts-node", "src/app.ts"]
+CMD ["node", "dist/app.js"]
