@@ -33,6 +33,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start the application with ts-node for development
+# Start the application with ts-node for development (skip type checking)
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/app.ts"]
+CMD ["npx", "ts-node", "--transpile-only", "-r", "tsconfig-paths/register", "src/app.ts"]
