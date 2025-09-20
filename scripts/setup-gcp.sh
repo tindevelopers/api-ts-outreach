@@ -81,6 +81,7 @@ enable_apis() {
     local apis=(
         "run.googleapis.com"
         "containerregistry.googleapis.com"
+        "artifactregistry.googleapis.com"
         "iam.googleapis.com"
         "cloudbuild.googleapis.com"
         "logging.googleapis.com"
@@ -141,6 +142,21 @@ grant_permissions() {
     gcloud projects add-iam-policy-binding $PROJECT_ID \
         --member="serviceAccount:$service_account_email" \
         --role="roles/monitoring.metricWriter"
+    
+    # Artifact Registry Writer
+    gcloud projects add-iam-policy-binding $PROJECT_ID \
+        --member="serviceAccount:$service_account_email" \
+        --role="roles/artifactregistry.writer"
+    
+    # Artifact Registry Reader
+    gcloud projects add-iam-policy-binding $PROJECT_ID \
+        --member="serviceAccount:$service_account_email" \
+        --role="roles/artifactregistry.reader"
+    
+    # Storage Object Admin (for Container Registry)
+    gcloud projects add-iam-policy-binding $PROJECT_ID \
+        --member="serviceAccount:$service_account_email" \
+        --role="roles/storage.objectAdmin"
     
     log_success "Permissions granted to service account"
 }
