@@ -1,0 +1,426 @@
+name: Stage 2 - Google Cloud Run Deployment Pipeline
+
+on:
+  # Trigger after successful Stage 1 completion
+  workflow_run:
+    workflows: ["Stage 1 - Docker & Code Quality Pipeline"]
+    types: [completed]
+    branches: [main, develop, staging]
+  
+  # Manual trigger for specific deployments
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      force_deploy:
+        description: 'Force deployment even if Stage 1 failed'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  # Google Cloud Configuration
+  PROJECT_ID: api-outreach-as-a-service
+  REGION: us-east1
+  SERVICE_NAME: api-outreach-service
+  
+  # Container Registry
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  
+  # Environment-specific configurations
+  ENVIRONMENT: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'develop' && 'staging' || 'development' }}
+
+jobs:
+  # Pre-deployment checks
+  pre-deployment:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event.inputs.force_deploy == 'true'
+    
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+      environment: ${{ steps.check.outputs.environment }}
+      image-tag: ${{ steps.check.outputs.image-tag }}
+    
+    steps:
+    - name: Check deployment conditions
+      id: check
+      run: |
+        # Determine if we should deploy
+        if [[ "${{ github.event.workflow_run.conclusion }}" == "success" || "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+          echo "should-deploy=true" >> $GITHUB_OUTPUT
+        else
+          echo "should-deploy=false" >> $GITHUB_OUTPUT
+        fi
+        
+        # Determine environment
+        if [[ "${{ github.ref_name }}" == "main" ]]; then
+          echo "environment=production" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+          echo "environment=staging" >> $GITHUB_OUTPUT
+        else
+          echo "environment=development" >> $GITHUB_OUTPUT
+        fi
+        
+        # Determine image tag
+        if [[ "${{ github.event.inputs.environment }}" != "" ]]; then
+          echo "image-tag=${{ github.event.inputs.environment }}-${{ github.sha }}" >> $GITHUB_OUTPUT
+        else
+          echo "image-tag=${{ steps.check.outputs.environment }}-${{ github.sha }}" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Deployment conditions:"
+        echo "  Should deploy: ${{ steps.check.outputs.should-deploy }}"
+        echo "  Environment: ${{ steps.check.outputs.environment }}"
+        echo "  Image tag: ${{ steps.check.outputs.image-tag }}"
+
+  # Google Cloud Authentication
+  authenticate:
+    name: Google Cloud Authentication
+    runs-on: ubuntu-latest
+    needs: pre-deployment
+    if: needs.pre-deployment.outputs.should-deploy == 'true'
+    
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+        token_format: 'access_token'
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Configure Docker to use gcloud as a credential helper
+      run: |
+        gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+    
+    - name: Verify authentication
+      run: |
+        echo "Authenticated as:"
+        gcloud auth list
+        echo "Current project:"
+        gcloud config get-value project
+
+  # Deploy to Google Cloud Run
+  deploy:
+    name: Deploy to Google Cloud Run
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, authenticate]
+    if: needs.pre-deployment.outputs.should-deploy == 'true'
+    
+    environment: ${{ needs.pre-deployment.outputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+        token_format: 'access_token'
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Configure Docker to use gcloud as a credential helper
+      run: |
+        gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+    
+    - name: Pull Docker image from GHCR
+      run: |
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}
+    
+    - name: Push to Google Container Registry
+      run: |
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}
+    
+    - name: Deploy to Cloud Run
+      id: deploy
+      run: |
+        # Set environment-specific configurations
+        if [[ "${{ needs.pre-deployment.outputs.environment }}" == "production" ]]; then
+          AUTH_FLAG="--no-allow-unauthenticated"
+          MEMORY="2Gi"
+          CPU="2"
+          MIN_INSTANCES="1"
+          MAX_INSTANCES="100"
+          CONCURRENCY="1000"
+        elif [[ "${{ needs.pre-deployment.outputs.environment }}" == "staging" ]]; then
+          AUTH_FLAG="--allow-unauthenticated"
+          MEMORY="1Gi"
+          CPU="1"
+          MIN_INSTANCES="0"
+          MAX_INSTANCES="10"
+          CONCURRENCY="80"
+        else
+          AUTH_FLAG="--allow-unauthenticated"
+          MEMORY="512Mi"
+          CPU="1"
+          MIN_INSTANCES="0"
+          MAX_INSTANCES="5"
+          CONCURRENCY="80"
+        fi
+        
+        # Deploy to Cloud Run
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }} \
+          --platform managed \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }} \
+          $AUTH_FLAG \
+          --port 3000 \
+          --memory $MEMORY \
+          --cpu $CPU \
+          --min-instances $MIN_INSTANCES \
+          --max-instances $MAX_INSTANCES \
+          --timeout 300 \
+          --concurrency $CONCURRENCY \
+          --set-env-vars NODE_ENV=${{ needs.pre-deployment.outputs.environment }} \
+          --set-env-vars REDIS_URL=${{ secrets.REDIS_URL }} \
+          --set-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          --set-env-vars GROWCHIEF_ENDPOINT=${{ secrets.GROWCHIEF_ENDPOINT }} \
+          --set-env-vars GROWCHIEF_API_KEY=${{ secrets.GROWCHIEF_API_KEY }} \
+          --set-env-vars GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+          --set-env-vars GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+          --set-env-vars ENVIRONMENT=${{ needs.pre-deployment.outputs.environment }} \
+          --set-env-vars VERSION=${{ github.sha }} \
+          --set-env-vars DEPLOYED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+          --quiet
+        
+        # Get service URL
+        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+          --platform managed \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }} \
+          --format 'value(status.url)')
+        
+        echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_OUTPUT
+        echo "Service deployed at: $SERVICE_URL"
+    
+    - name: Show deployment details
+      run: |
+        echo "🚀 Deployment completed successfully!"
+        echo "Environment: ${{ needs.pre-deployment.outputs.environment }}"
+        echo "Service: ${{ env.SERVICE_NAME }}"
+        echo "Region: ${{ env.REGION }}"
+        echo "Image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}"
+        echo "Service URL: ${{ steps.deploy.outputs.SERVICE_URL }}"
+
+  # Post-deployment verification
+  verify:
+    name: Post-deployment Verification
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy]
+    if: needs.pre-deployment.outputs.should-deploy == 'true'
+    
+    steps:
+    - name: Wait for service to be ready
+      run: |
+        echo "Waiting for service to be ready..."
+        sleep 30
+    
+    - name: Health check
+      run: |
+        SERVICE_URL="${{ needs.deploy.outputs.SERVICE_URL }}"
+        echo "Testing health endpoint: $SERVICE_URL/health"
+        
+        # Test health endpoint
+        for i in {1..5}; do
+          if curl -f -s "$SERVICE_URL/health" > /dev/null; then
+            echo "✅ Health check passed!"
+            break
+          else
+            echo "⏳ Health check attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+          fi
+        done
+        
+        # Final health check
+        if ! curl -f -s "$SERVICE_URL/health" > /dev/null; then
+          echo "❌ Health check failed after 5 attempts"
+          exit 1
+        fi
+    
+    - name: API endpoint verification
+      run: |
+        SERVICE_URL="${{ needs.deploy.outputs.SERVICE_URL }}"
+        echo "Testing API endpoints..."
+        
+        # Test basic API endpoints
+        echo "Testing /api/v1/campaigns endpoint..."
+        if curl -f -s "$SERVICE_URL/api/v1/campaigns" > /dev/null; then
+          echo "✅ Campaigns endpoint accessible"
+        else
+          echo "⚠️ Campaigns endpoint not accessible (may require authentication)"
+        fi
+        
+        echo "Testing /api/v1/leads endpoint..."
+        if curl -f -s "$SERVICE_URL/api/v1/leads" > /dev/null; then
+          echo "✅ Leads endpoint accessible"
+        else
+          echo "⚠️ Leads endpoint not accessible (may require authentication)"
+        fi
+    
+    - name: Performance check
+      run: |
+        SERVICE_URL="${{ needs.deploy.outputs.SERVICE_URL }}"
+        echo "Running performance check..."
+        
+        # Simple response time test
+        RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$SERVICE_URL/health")
+        echo "Response time: ${RESPONSE_TIME}s"
+        
+        # Check if response time is reasonable (less than 5 seconds)
+        if (( $(echo "$RESPONSE_TIME < 5" | bc -l) )); then
+          echo "✅ Performance check passed (response time: ${RESPONSE_TIME}s)"
+        else
+          echo "⚠️ Performance check warning (response time: ${RESPONSE_TIME}s)"
+        fi
+
+  # Rollback strategy (optional)
+  rollback:
+    name: Rollback Strategy
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy, verify]
+    if: failure() && needs.pre-deployment.outputs.should-deploy == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+        token_format: 'access_token'
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Get previous successful revision
+      id: previous
+      run: |
+        # Get the previous successful revision
+        PREVIOUS_REVISION=$(gcloud run revisions list \
+          --service ${{ env.SERVICE_NAME }} \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }} \
+          --format 'value(metadata.name)' \
+          --limit 2 | tail -n 1)
+        
+        echo "previous-revision=$PREVIOUS_REVISION" >> $GITHUB_OUTPUT
+        echo "Previous revision: $PREVIOUS_REVISION"
+    
+    - name: Rollback to previous revision
+      if: steps.previous.outputs.previous-revision != ''
+      run: |
+        echo "Rolling back to previous revision: ${{ steps.previous.outputs.previous-revision }}"
+        
+        gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+          --to-revisions ${{ steps.previous.outputs.previous-revision }}=100 \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }} \
+          --quiet
+        
+        echo "✅ Rollback completed successfully"
+
+  # Notifications
+  notify:
+    name: Deployment Notifications
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy, verify]
+    if: always() && needs.pre-deployment.outputs.should-deploy == 'true'
+    
+    steps:
+    - name: Determine deployment status
+      id: status
+      run: |
+        if [[ "${{ needs.verify.result }}" == "success" ]]; then
+          echo "DEPLOYMENT_STATUS=success" >> $GITHUB_ENV
+          echo "STATUS_EMOJI=✅" >> $GITHUB_ENV
+          echo "STATUS_COLOR=good" >> $GITHUB_ENV
+        else
+          echo "DEPLOYMENT_STATUS=failure" >> $GITHUB_ENV
+          echo "STATUS_EMOJI=❌" >> $GITHUB_ENV
+          echo "STATUS_COLOR=danger" >> $GITHUB_ENV
+        fi
+    
+    - name: Send Slack notification
+      if: env.DEPLOYMENT_STATUS == 'success'
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_MESSAGE: |
+          ${{ env.STATUS_EMOJI }} Stage 2 Deployment Successful!
+          
+          **Environment:** ${{ needs.pre-deployment.outputs.environment }}
+          **Service:** ${{ env.SERVICE_NAME }}
+          **Region:** ${{ env.REGION }}
+          **Service URL:** ${{ needs.deploy.outputs.SERVICE_URL }}
+          **Version:** ${{ github.sha }}
+          **Deployed by:** ${{ github.actor }}
+          
+          [View Deployment](https://console.cloud.google.com/run/detail/${{ env.REGION }}/${{ env.SERVICE_NAME }}/metrics?project=${{ env.PROJECT_ID }})
+        SLACK_COLOR: ${{ env.STATUS_COLOR }}
+    
+    - name: Send Slack notification (failure)
+      if: env.DEPLOYMENT_STATUS == 'failure'
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_MESSAGE: |
+          ${{ env.STATUS_EMOJI }} Stage 2 Deployment Failed!
+          
+          **Environment:** ${{ needs.pre-deployment.outputs.environment }}
+          **Service:** ${{ env.SERVICE_NAME }}
+          **Region:** ${{ env.REGION }}
+          **Error:** Check the workflow logs for details
+          **Version:** ${{ github.sha }}
+          **Deployed by:** ${{ github.actor }}
+          
+          [View Workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        SLACK_COLOR: ${{ env.STATUS_COLOR }}
+    
+    - name: Create deployment summary
+      run: |
+        echo "## 🚀 Stage 2 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ${{ env.STATUS_EMOJI }} ${{ env.DEPLOYMENT_STATUS }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment:** ${{ needs.pre-deployment.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Service:** ${{ env.SERVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Region:** ${{ env.REGION }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Service URL:** ${{ needs.deploy.outputs.SERVICE_URL }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Deployment Details" >> $GITHUB_STEP_SUMMARY
+        echo "- **Project ID:** ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image:** gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment Time:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+        echo "- [Google Cloud Console](https://console.cloud.google.com/run/detail/${{ env.REGION }}/${{ env.SERVICE_NAME }}/metrics?project=${{ env.PROJECT_ID }})" >> $GITHUB_STEP_SUMMARY
+        echo "- [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
