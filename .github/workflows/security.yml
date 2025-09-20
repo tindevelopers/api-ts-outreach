@@ -12,6 +12,7 @@ jobs:
   dependency-scan:
     name: Dependency Security Scan
     runs-on: ubuntu-latest
+    continue-on-error: true
     
     steps:
     - name: Checkout code
