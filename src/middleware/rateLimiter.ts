@@ -37,7 +37,7 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction): vo
         userAgent: req.get('User-Agent')
       });
       
-      return res.status(429).json({
+      res.status(429).json({
         success: false,
         error: 'Too Many Requests',
         message: 'Rate limit exceeded. Please try again later.',
