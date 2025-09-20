@@ -66,7 +66,6 @@ jobs:
     permissions:
       actions: read
       contents: read
-      security-events: write
 
     strategy:
       fail-fast: false
@@ -105,11 +104,5 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: 'api-outreach-service:security-scan'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
+        format: 'table'
+        exit-code: '0'
