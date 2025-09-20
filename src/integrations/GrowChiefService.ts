@@ -310,7 +310,7 @@ export class GrowChiefService {
         'Authorization': `Bearer ${this.config.apiKey}`,
         'User-Agent': 'API-Outreach-Service/1.0.0'
       },
-      timeout: this.config.timeout || 30000
+      // timeout: this.config.timeout || 30000 // Not supported in fetch
     };
 
     const requestOptions = { ...defaultOptions, ...options };

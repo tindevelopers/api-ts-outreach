@@ -7,7 +7,7 @@ const requestCounts = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = parseInt(process.env.API_RATE_LIMIT || '100');
 const RATE_WINDOW_MS = parseInt(process.env.API_RATE_WINDOW_MS || '900000'); // 15 minutes
 
-export const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
+export const rateLimiter = (req: Request, res: Response, next: NextFunction): void => {
   try {
     const clientId = getClientIdentifier(req);
     const now = Date.now();
@@ -59,7 +59,7 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction) => 
     next();
   } catch (error) {
     logger.error('Rate limiter error', {
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       ip: req.ip
     });
     

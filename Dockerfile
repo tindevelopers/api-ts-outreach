@@ -35,4 +35,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Start the application with ts-node for development
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npx", "ts-node", "src/app.ts"]
+CMD ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/app.ts"]

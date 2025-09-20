@@ -39,7 +39,7 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
     // For Google IAM authentication (longer tokens)
     if (token.length > 100) {
       // This is likely a Google IAM token, validate it
-      const user = await validateGoogleIAMToken(token);
+      const user = validateGoogleIAMToken(token);
       if (!user) {
         return res.status(401).json({
           success: false,

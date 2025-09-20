@@ -64,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     logger.info('Lead created successfully', {
       leadId: lead.id,
-      userId,
+      _userId,
       campaignId
     });
 
