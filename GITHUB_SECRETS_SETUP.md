@@ -26,7 +26,7 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 |-------------|-------------|---------|
 | `JWT_SECRET` | JWT signing secret (32+ chars) | `your-super-secret-jwt-key-32-chars` |
 | `OUTREACH_API_ENDPOINT` | Outreach API endpoint | `https://outreach.example.com` |
-| `OUTREACH_API_KEY` | Outreach API key | `your-growchief-api-key` |
+| `OUTREACH_API_KEY` | Outreach API key | `your-outreach-api-key` |
 
 ### 4. Optional Secrets
 
@@ -117,7 +117,7 @@ cat github-actions-key.json
 
 #### OUTREACH_API_ENDPOINT
 - **Name**: `OUTREACH_API_ENDPOINT`
-- **Value**: Your Outreach API endpoint (e.g., `https://api.growchief.com`)
+- **Value**: Your Outreach API endpoint (e.g., `https://api.outreach.example.com`)
 
 #### OUTREACH_API_KEY
 - **Name**: `OUTREACH_API_KEY`

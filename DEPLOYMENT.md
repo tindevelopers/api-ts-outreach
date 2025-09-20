@@ -36,7 +36,7 @@ Go to your GitHub repository → Settings → Secrets and variables → Actions,
 | `REDIS_URL` | Redis connection string | `redis://host:6379` |
 | `JWT_SECRET` | JWT signing secret | `your-super-secret-jwt-key` |
 | `OUTREACH_API_ENDPOINT` | Outreach API endpoint | `https://outreach.example.com` |
-| `OUTREACH_API_KEY` | Outreach API key | `your-growchief-api-key` |
+| `OUTREACH_API_KEY` | Outreach API key | `your-outreach-api-key` |
 
 ### Optional Secrets
 

@@ -71,17 +71,17 @@ export const getEnvironmentConfig = () => {
     dev: {
       databaseUrl: process.env.DATABASE_URL_DEV,
       redisUrl: process.env.REDIS_URL_DEV,
-      growchiefEndpoint: process.env.OUTREACH_API_ENDPOINT_DEV,
+      outreachEndpoint: process.env.OUTREACH_API_ENDPOINT_DEV,
     },
     staging: {
       databaseUrl: process.env.DATABASE_URL_STAGING,
       redisUrl: process.env.REDIS_URL_STAGING,
-      growchiefEndpoint: process.env.OUTREACH_API_ENDPOINT_STAGING,
+      outreachEndpoint: process.env.OUTREACH_API_ENDPOINT_STAGING,
     },
     prod: {
       databaseUrl: process.env.DATABASE_URL_PROD,
       redisUrl: process.env.REDIS_URL_PROD,
-      growchiefEndpoint: process.env.OUTREACH_API_ENDPOINT_PROD,
+      outreachEndpoint: process.env.OUTREACH_API_ENDPOINT_PROD,
     }
   }[env];
 };

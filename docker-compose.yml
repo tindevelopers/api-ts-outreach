@@ -21,7 +21,7 @@ services:
     depends_on:
       - postgres
       - redis
-      - growchief
+      - outreach-api
     volumes:
       - ./logs:/app/logs
     restart: unless-stopped
@@ -64,13 +64,13 @@ services:
       timeout: 3s
       retries: 5
 
-  # GrowChief Service (Mock)
-  growchief:
+  # Outreach API Service (Mock)
+  outreach-api:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
-      - ./docker/growchief-mock.conf:/etc/nginx/nginx.conf
+      - ./docker/outreach-api-mock.conf:/etc/nginx/nginx.conf
       - ./docker/mock-responses:/usr/share/nginx/html
     restart: unless-stopped
     healthcheck:

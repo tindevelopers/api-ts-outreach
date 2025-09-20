@@ -73,7 +73,7 @@ echo "   ✅ OUTREACH_API_ENDPOINT set (placeholder - update with real endpoint)
 echo ""
 echo "7️⃣  Setting OUTREACH_API_KEY..."
 echo "   ⚠️  Please update this with your actual Outreach API key"
-gh secret set OUTREACH_API_KEY --repo $REPO --body "your-growchief-api-key"
+gh secret set OUTREACH_API_KEY --repo $REPO --body "your-outreach-api-key"
 echo "   ✅ OUTREACH_API_KEY set (placeholder - update with real key)"
 
 echo ""
