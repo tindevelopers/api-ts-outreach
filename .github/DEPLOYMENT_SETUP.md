@@ -17,8 +17,8 @@ The Stage 2 pipeline automatically deploys validated Docker images from Stage 1 
 
 3. **REDIS_URL**: Redis connection string for caching and rate limiting
 4. **JWT_SECRET**: Secret key for JWT token generation
-5. **GROWCHIEF_ENDPOINT**: GrowChief API endpoint URL
-6. **GROWCHIEF_API_KEY**: GrowChief API authentication key
+5. **OUTREACH_API_ENDPOINT**: Outreach API endpoint URL
+6. **OUTREACH_API_KEY**: Outreach API authentication key
 7. **GOOGLE_CLIENT_ID**: Google OAuth client ID
 8. **GOOGLE_CLIENT_SECRET**: Google OAuth client secret
 
@@ -98,8 +98,8 @@ gh secret set WIF_PROVIDER --body "$WIF_PROVIDER"
 gh secret set WIF_SERVICE_ACCOUNT --body "github-actions@api-outreach-as-a-service.iam.gserviceaccount.com"
 gh secret set REDIS_URL --body "redis://your-redis-instance:6379"
 gh secret set JWT_SECRET --body "your-jwt-secret-key"
-gh secret set GROWCHIEF_ENDPOINT --body "https://api.growchief.com"
-gh secret set GROWCHIEF_API_KEY --body "your-growchief-api-key"
+gh secret set OUTREACH_API_ENDPOINT --body "https://api.outreach.example.com"
+gh secret set OUTREACH_API_KEY --body "your-growchief-api-key"
 gh secret set GOOGLE_CLIENT_ID --body "your-google-client-id"
 gh secret set GOOGLE_CLIENT_SECRET --body "your-google-client-secret"
 gh secret set SLACK_WEBHOOK_URL --body "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
@@ -231,8 +231,8 @@ The following environment variables are automatically set during deployment:
 - `NODE_ENV`: Environment name (production/staging/development)
 - `REDIS_URL`: Redis connection string
 - `JWT_SECRET`: JWT signing secret
-- `GROWCHIEF_ENDPOINT`: GrowChief API endpoint
-- `GROWCHIEF_API_KEY`: GrowChief API key
+- `OUTREACH_API_ENDPOINT`: Outreach API endpoint
+- `OUTREACH_API_KEY`: Outreach API key
 - `GOOGLE_CLIENT_ID`: Google OAuth client ID
 - `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
 - `ENVIRONMENT`: Deployment environment

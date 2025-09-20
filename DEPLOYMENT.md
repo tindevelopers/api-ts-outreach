@@ -35,8 +35,8 @@ Go to your GitHub repository → Settings → Secrets and variables → Actions,
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
 | `REDIS_URL` | Redis connection string | `redis://host:6379` |
 | `JWT_SECRET` | JWT signing secret | `your-super-secret-jwt-key` |
-| `GROWCHIEF_ENDPOINT` | GrowChief API endpoint | `https://growchief.example.com` |
-| `GROWCHIEF_API_KEY` | GrowChief API key | `your-growchief-api-key` |
+| `OUTREACH_API_ENDPOINT` | Outreach API endpoint | `https://outreach.example.com` |
+| `OUTREACH_API_KEY` | Outreach API key | `your-growchief-api-key` |
 
 ### Optional Secrets
 

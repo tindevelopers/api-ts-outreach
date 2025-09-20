@@ -54,16 +54,16 @@ jobs:
       env:
         NODE_ENV: test
         REDIS_URL: redis://localhost:6379
-        GROWCHIEF_ENDPOINT: https://mock-growchief.example.com
-        GROWCHIEF_API_KEY: mock-api-key
+        OUTREACH_API_ENDPOINT: https://mock-outreach.example.com
+        OUTREACH_API_KEY: mock-api-key
 
     - name: Run integration tests
       run: echo "Integration tests skipped for now"
       env:
         NODE_ENV: test
         REDIS_URL: redis://localhost:6379
-        GROWCHIEF_ENDPOINT: https://mock-growchief.example.com
-        GROWCHIEF_API_KEY: mock-api-key
+        OUTREACH_API_ENDPOINT: https://mock-outreach.example.com
+        OUTREACH_API_KEY: mock-api-key
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
@@ -160,8 +160,8 @@ jobs:
           -p 3000:3000 \
           -e NODE_ENV=test \
           -e REDIS_URL=redis://host.docker.internal:6379 \
-          -e GROWCHIEF_ENDPOINT=https://mock-growchief.example.com \
-          -e GROWCHIEF_API_KEY=mock-api-key \
+          -e OUTREACH_API_ENDPOINT=https://mock-outreach.example.com \
+          -e OUTREACH_API_KEY=mock-api-key \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         
         # Wait for container to start

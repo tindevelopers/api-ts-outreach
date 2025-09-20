@@ -71,17 +71,17 @@ export const getEnvironmentConfig = () => {
     dev: {
       databaseUrl: process.env.DATABASE_URL_DEV,
       redisUrl: process.env.REDIS_URL_DEV,
-      growchiefEndpoint: process.env.GROWCHIEF_ENDPOINT_DEV,
+      growchiefEndpoint: process.env.OUTREACH_API_ENDPOINT_DEV,
     },
     staging: {
       databaseUrl: process.env.DATABASE_URL_STAGING,
       redisUrl: process.env.REDIS_URL_STAGING,
-      growchiefEndpoint: process.env.GROWCHIEF_ENDPOINT_STAGING,
+      growchiefEndpoint: process.env.OUTREACH_API_ENDPOINT_STAGING,
     },
     prod: {
       databaseUrl: process.env.DATABASE_URL_PROD,
       redisUrl: process.env.REDIS_URL_PROD,
-      growchiefEndpoint: process.env.GROWCHIEF_ENDPOINT_PROD,
+      growchiefEndpoint: process.env.OUTREACH_API_ENDPOINT_PROD,
     }
   }[env];
 };
@@ -228,9 +228,9 @@ REDIS_URL_DEV=redis://dev-host:6379
 REDIS_URL_STAGING=redis://staging-host:6379
 REDIS_URL_PROD=redis://prod-host:6379
 
-GROWCHIEF_ENDPOINT_DEV=https://dev-api.growchief.com
-GROWCHIEF_ENDPOINT_STAGING=https://staging-api.growchief.com
-GROWCHIEF_ENDPOINT_PROD=https://api.growchief.com
+OUTREACH_API_ENDPOINT_DEV=https://dev-api.outreach.example.com
+OUTREACH_API_ENDPOINT_STAGING=https://staging-api.outreach.example.com
+OUTREACH_API_ENDPOINT_PROD=https://api.outreach.example.com
 ```
 
 ## 🎯 **Benefits of This Approach**

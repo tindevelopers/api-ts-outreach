@@ -95,8 +95,8 @@ A TypeScript-based API service for social media outreach automation, built on to
 | `DATABASE_URL` | PostgreSQL connection string | Required |
 | `REDIS_URL` | Redis connection string | `redis://localhost:6379` |
 | `JWT_SECRET` | JWT signing secret | Required |
-| `GROWCHIEF_ENDPOINT` | GrowChief API endpoint | Required |
-| `GROWCHIEF_API_KEY` | GrowChief API key | Required |
+| `OUTREACH_API_ENDPOINT` | Outreach API endpoint | Required |
+| `OUTREACH_API_KEY` | Outreach API key | Required |
 
 ### API Configuration
 

@@ -102,8 +102,8 @@ git push origin main
 | `WIF_SERVICE_ACCOUNT` | Service account email | `github-actions@api-outreach-as-a-service.iam.gserviceaccount.com` |
 | `REDIS_URL` | Redis connection string | `redis://your-redis:6379` |
 | `JWT_SECRET` | JWT signing secret | `your-secret-key` |
-| `GROWCHIEF_ENDPOINT` | GrowChief API endpoint | `https://api.growchief.com` |
-| `GROWCHIEF_API_KEY` | GrowChief API key | `your-api-key` |
+| `OUTREACH_API_ENDPOINT` | Outreach API endpoint | `https://api.outreach.example.com` |
+| `OUTREACH_API_KEY` | Outreach API key | `your-api-key` |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID | `your-client-id` |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `your-client-secret` |
 | `SLACK_WEBHOOK_URL` | Slack webhook (optional) | `https://hooks.slack.com/services/...` |
@@ -259,8 +259,8 @@ The following environment variables are automatically set during deployment:
 | `NODE_ENV` | Environment name | `production` |
 | `REDIS_URL` | Redis connection string | `redis://your-redis:6379` |
 | `JWT_SECRET` | JWT signing secret | `your-secret-key` |
-| `GROWCHIEF_ENDPOINT` | GrowChief API endpoint | `https://api.growchief.com` |
-| `GROWCHIEF_API_KEY` | GrowChief API key | `your-api-key` |
+| `OUTREACH_API_ENDPOINT` | Outreach API endpoint | `https://api.outreach.example.com` |
+| `OUTREACH_API_KEY` | Outreach API key | `your-api-key` |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID | `your-client-id` |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `your-client-secret` |
 | `ENVIRONMENT` | Deployment environment | `production` |

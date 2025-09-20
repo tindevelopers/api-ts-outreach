@@ -25,8 +25,8 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
 | `JWT_SECRET` | JWT signing secret (32+ chars) | `your-super-secret-jwt-key-32-chars` |
-| `GROWCHIEF_ENDPOINT` | GrowChief API endpoint | `https://growchief.example.com` |
-| `GROWCHIEF_API_KEY` | GrowChief API key | `your-growchief-api-key` |
+| `OUTREACH_API_ENDPOINT` | Outreach API endpoint | `https://outreach.example.com` |
+| `OUTREACH_API_KEY` | Outreach API key | `your-growchief-api-key` |
 
 ### 4. Optional Secrets
 
@@ -115,13 +115,13 @@ cat github-actions-key.json
 - **Name**: `JWT_SECRET`
 - **Value**: Generate a secure 32+ character string (e.g., `my-super-secret-jwt-key-32-chars-long`)
 
-#### GROWCHIEF_ENDPOINT
-- **Name**: `GROWCHIEF_ENDPOINT`
-- **Value**: Your GrowChief API endpoint (e.g., `https://api.growchief.com`)
+#### OUTREACH_API_ENDPOINT
+- **Name**: `OUTREACH_API_ENDPOINT`
+- **Value**: Your Outreach API endpoint (e.g., `https://api.growchief.com`)
 
-#### GROWCHIEF_API_KEY
-- **Name**: `GROWCHIEF_API_KEY`
-- **Value**: Your GrowChief API key
+#### OUTREACH_API_KEY
+- **Name**: `OUTREACH_API_KEY`
+- **Value**: Your Outreach API key
 
 ### Step 6: Set Up Database (Optional)
 
@@ -184,8 +184,8 @@ redis-cli -h host -p 6379 ping
 - [ ] `DATABASE_URL` - PostgreSQL connection string
 - [ ] `REDIS_URL` - Redis connection string
 - [ ] `JWT_SECRET` - JWT signing secret
-- [ ] `GROWCHIEF_ENDPOINT` - GrowChief API endpoint
-- [ ] `GROWCHIEF_API_KEY` - GrowChief API key
+- [ ] `OUTREACH_API_ENDPOINT` - Outreach API endpoint
+- [ ] `OUTREACH_API_KEY` - Outreach API key
 - [ ] `SNYK_TOKEN` - Snyk token (optional)
 
 ## 🚨 Security Notes

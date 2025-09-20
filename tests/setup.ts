@@ -6,8 +6,8 @@ beforeAll(async () => {
   process.env.NODE_ENV = 'test';
   process.env.JWT_SECRET = 'test-secret-key';
   process.env.REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
-  process.env.GROWCHIEF_ENDPOINT = 'https://mock-growchief.example.com';
-  process.env.GROWCHIEF_API_KEY = 'mock-api-key';
+  process.env.OUTREACH_API_ENDPOINT = 'https://mock-outreach.example.com';
+  process.env.OUTREACH_API_KEY = 'mock-api-key';
   
   // Suppress logger output during tests
   logger.transports.forEach((transport) => {

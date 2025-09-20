@@ -29,8 +29,8 @@ class LeadService {
 
   constructor() {
     this.growChiefService = new GrowChiefService({
-      endpoint: process.env.GROWCHIEF_ENDPOINT || 'http://localhost:8080',
-      apiKey: process.env.GROWCHIEF_API_KEY || 'demo-key',
+      endpoint: process.env.OUTREACH_API_ENDPOINT || 'http://localhost:8080',
+      apiKey: process.env.OUTREACH_API_KEY || 'demo-key',
       timeout: 30000,
       retryAttempts: 3
     });

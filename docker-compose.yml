@@ -14,8 +14,8 @@ services:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/outreach_api
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=development-jwt-secret-key
-      - GROWCHIEF_ENDPOINT=http://growchief:8080
-      - GROWCHIEF_API_KEY=demo-api-key
+      - OUTREACH_API_ENDPOINT=http://outreach-api:8080
+      - OUTREACH_API_KEY=demo-api-key
       - LOG_LEVEL=debug
       - CORS_ORIGIN=http://localhost:3000
     depends_on:

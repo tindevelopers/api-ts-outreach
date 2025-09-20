@@ -49,8 +49,8 @@ jobs:
         REDIS_URL: redis://localhost:6379
         JWT_SECRET: test-secret-key
         NODE_ENV: test
-        GROWCHIEF_ENDPOINT: http://localhost:8080
-        GROWCHIEF_API_KEY: test-api-key
+        OUTREACH_API_ENDPOINT: http://localhost:8080
+        OUTREACH_API_KEY: test-api-key
 
     - name: Build application
       run: npm run build

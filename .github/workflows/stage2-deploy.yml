@@ -200,8 +200,8 @@ jobs:
           --set-env-vars NODE_ENV=${{ needs.pre-deployment.outputs.environment }} \
           --set-env-vars REDIS_URL=${{ secrets.REDIS_URL }} \
           --set-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          --set-env-vars GROWCHIEF_ENDPOINT=${{ secrets.GROWCHIEF_ENDPOINT }} \
-          --set-env-vars GROWCHIEF_API_KEY=${{ secrets.GROWCHIEF_API_KEY }} \
+          --set-env-vars OUTREACH_API_ENDPOINT=${{ secrets.OUTREACH_API_ENDPOINT }} \
+          --set-env-vars OUTREACH_API_KEY=${{ secrets.OUTREACH_API_KEY }} \
           --set-env-vars GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
           --set-env-vars GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
           --set-env-vars ENVIRONMENT=${{ needs.pre-deployment.outputs.environment }} \

@@ -15,8 +15,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install all dependencies (including dev dependencies for now)
-RUN npm ci --only=production --ignore-scripts || npm ci --ignore-scripts || npm install --ignore-scripts
-RUN npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY --chown=nodejs:nodejs . .

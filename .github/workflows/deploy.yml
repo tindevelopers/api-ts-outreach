@@ -50,8 +50,8 @@ jobs:
         REDIS_URL: redis://localhost:6379
         JWT_SECRET: test-secret-key
         NODE_ENV: test
-        GROWCHIEF_ENDPOINT: http://localhost:8080
-        GROWCHIEF_API_KEY: test-api-key
+        OUTREACH_API_ENDPOINT: http://localhost:8080
+        OUTREACH_API_KEY: test-api-key
       continue-on-error: true
 
     - name: Build application
@@ -128,8 +128,8 @@ jobs:
           --set-env-vars NODE_ENV=production \
           --set-env-vars REDIS_URL=${{ secrets.REDIS_URL }} \
           --set-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          --set-env-vars GROWCHIEF_ENDPOINT=${{ secrets.GROWCHIEF_ENDPOINT }} \
-          --set-env-vars GROWCHIEF_API_KEY=${{ secrets.GROWCHIEF_API_KEY }} \
+          --set-env-vars OUTREACH_API_ENDPOINT=${{ secrets.OUTREACH_API_ENDPOINT }} \
+          --set-env-vars OUTREACH_API_KEY=${{ secrets.OUTREACH_API_KEY }} \
           --set-env-vars LOG_LEVEL=info
 
     - name: Show service URL
