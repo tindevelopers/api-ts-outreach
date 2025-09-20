@@ -1,7 +1,8 @@
 import { Request, Response, Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
+import { leadService } from '@/services/leadService';
 import { 
   CreateLeadRequest, 
   Lead, 
@@ -46,7 +47,7 @@ router.post('/', async (req: Request, res: Response) => {
       } as ApiResponse);
     }
 
-    const userId = (req as any).user.id;
+    const _userId = (req as any).user.id;
     const campaignId = req.body.campaignId; // This should come from the request
     
     if (!campaignId) {
@@ -59,23 +60,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const leadData: CreateLeadRequest = value;
-    const leadId = uuidv4();
-    
-    const lead: Lead = {
-      id: leadId,
-      campaignId,
-      email: leadData.email,
-      name: leadData.name,
-      company: leadData.company,
-      profileUrl: leadData.profileUrl,
-      status: LeadStatus.PENDING,
-      metadata: leadData.metadata,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    // TODO: Save to database
-    // await leadService.createLead(lead);
+    const lead = await leadService.createLead(campaignId, leadData);
 
     logger.info('Lead created successfully', {
       leadId: lead.id,
@@ -111,23 +96,27 @@ router.post('/', async (req: Request, res: Response) => {
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const _userId = (req as any).user.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const status = req.query.status as string;
+    const status = req.query.status as LeadStatus;
     const campaignId = req.query.campaignId as string;
 
-    // TODO: Implement lead service
-    const mockLeads: Lead[] = [];
+    const result = await leadService.getLeads({
+      page,
+      limit,
+      status,
+      campaignId
+    });
 
     res.status(200).json({
       success: true,
-      data: mockLeads,
+      data: result.leads,
       pagination: {
-        page,
-        limit,
-        total: mockLeads.length,
-        totalPages: Math.ceil(mockLeads.length / limit)
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages
       },
       timestamp: new Date().toISOString()
     } as PaginatedResponse<Lead>);
@@ -153,11 +142,10 @@ router.get('/', async (req: Request, res: Response) => {
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const _userId = (req as any).user.id;
     const leadId = req.params.id;
 
-    // TODO: Implement lead service
-    const lead: Lead | null = null;
+    const lead = await leadService.getLeadById(leadId);
 
     if (!lead) {
       return res.status(404).json({
@@ -206,7 +194,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       } as ApiResponse);
     }
 
-    const userId = (req as any).user.id;
+    const _userId = (req as any).user.id;
     const leadId = req.params.id;
     const updateData = value;
 
@@ -256,7 +244,7 @@ router.put('/:id', async (req: Request, res: Response) => {
  */
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const _userId = (req as any).user.id;
     const leadId = req.params.id;
 
     // TODO: Implement lead service

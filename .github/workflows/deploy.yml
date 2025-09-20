@@ -17,19 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     
     services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
       redis:
         image: redis:7
         options: >-
@@ -59,10 +46,11 @@ jobs:
     - name: Run tests
       run: npm test
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
         REDIS_URL: redis://localhost:6379
         JWT_SECRET: test-secret-key
         NODE_ENV: test
+        GROWCHIEF_ENDPOINT: http://localhost:8080
+        GROWCHIEF_API_KEY: test-api-key
 
     - name: Build application
       run: npm run build
@@ -114,7 +102,6 @@ jobs:
           --timeout 300 \
           --concurrency 80 \
           --set-env-vars NODE_ENV=production \
-          --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
           --set-env-vars REDIS_URL=${{ secrets.REDIS_URL }} \
           --set-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \
           --set-env-vars GROWCHIEF_ENDPOINT=${{ secrets.GROWCHIEF_ENDPOINT }} \

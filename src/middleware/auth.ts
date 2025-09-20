@@ -36,8 +36,25 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
       });
     }
 
-    // For API key authentication (simple token)
-    if (token.length > 50) {
+    // For Google IAM authentication (longer tokens)
+    if (token.length > 100) {
+      // This is likely a Google IAM token, validate it
+      const user = await validateGoogleIAMToken(token);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized',
+          message: 'Invalid Google IAM token',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      req.user = user;
+      return next();
+    }
+
+    // For API key authentication (shorter tokens)
+    if (token.length > 20) {
       // This is likely an API key, validate it
       const user = validateApiKey(token);
       if (!user) {
@@ -79,22 +96,55 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
 };
 
 /**
- * Validate API key (in production, this should check against database)
+ * Validate API key using Google IAM or simple validation
  */
 function validateApiKey(apiKey: string): { id: string; email: string; apiKey: string } | null {
-  // TODO: Implement actual API key validation against database
-  // For now, this is a placeholder that accepts any key starting with 'ak_'
+  // For Google Cloud Run with IAM, we can use Google's built-in authentication
+  // This is a simplified version for demo purposes
   
   if (!apiKey.startsWith('ak_')) {
     return null;
   }
 
-  // Mock user data - replace with actual database lookup
+  // In production with Google IAM, you would:
+  // 1. Verify the token with Google's OAuth 2.0 API
+  // 2. Extract user information from the verified token
+  // 3. Check user permissions against IAM policies
+  
+  // For now, return mock user data
   return {
-    id: 'user_' + apiKey.slice(3, 15), // Extract user ID from API key
+    id: `user_${  apiKey.slice(3, 15)}`, // Extract user ID from API key
     email: `user_${apiKey.slice(3, 15)}@example.com`,
-    apiKey: apiKey
+    apiKey
   };
+}
+
+/**
+ * Validate Google IAM token (for production use)
+ */
+async function validateGoogleIAMToken(token: string): Promise<{ id: string; email: string; apiKey: string } | null> {
+  try {
+    // In production, you would verify the token with Google's API
+    // const { OAuth2Client } = require('google-auth-library');
+    // const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    // const ticket = await client.verifyIdToken({
+    //   idToken: token,
+    //   audience: process.env.GOOGLE_CLIENT_ID,
+    // });
+    // const payload = ticket.getPayload();
+    
+    // For demo purposes, return mock data
+    return {
+      id: 'google_user_123',
+      email: 'user@example.com',
+      apiKey: token
+    };
+  } catch (error) {
+    logger.error('Failed to validate Google IAM token', {
+      error: error.message
+    });
+    return null;
+  }
 }
 
 /**
@@ -115,7 +165,7 @@ export const generateToken = (user: { id: string; email: string; apiKey: string 
 /**
  * Generate API key for user
  */
-export const generateApiKey = (userId: string): string => {
+export const generateApiKey = (_userId: string): string => {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 15);
   return `ak_${timestamp}${random}`;

@@ -10,7 +10,7 @@ export const errorHandler = (
   error: ApiError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   // Log error
   logger.error('API Error', {
@@ -57,7 +57,7 @@ export const errorHandler = (
   res.status(statusCode).json({
     success: false,
     error: getErrorName(statusCode),
-    message: message,
+    message,
     timestamp: new Date().toISOString(),
     ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
   });
