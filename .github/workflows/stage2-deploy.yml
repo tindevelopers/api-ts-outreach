@@ -79,7 +79,14 @@ jobs:
         if [[ "${{ github.event.inputs.environment }}" != "" ]]; then
           echo "image-tag=${{ github.event.inputs.environment }}-${{ github.sha }}" >> $GITHUB_OUTPUT
         else
-          echo "image-tag=${{ steps.check.outputs.environment }}-${{ github.sha }}" >> $GITHUB_OUTPUT
+          # Use the environment we just determined
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "image-tag=production-${{ github.sha }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+            echo "image-tag=staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "image-tag=development-${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
         fi
         
         echo "Deployment conditions:"
