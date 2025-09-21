@@ -25,6 +25,11 @@ on:
         default: false
         type: boolean
 
+# Global permissions for Workload Identity Federation
+permissions:
+  contents: read
+  id-token: write
+
 env:
   # Google Cloud Configuration
   PROJECT_ID: api-outreach-as-a-service
@@ -88,10 +93,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-deployment
     if: needs.pre-deployment.outputs.should-deploy == 'true'
-    
-    permissions:
-      contents: read
-      id-token: write
     
     steps:
     - name: Checkout code
