@@ -149,9 +149,23 @@ jobs:
     
     - name: Pull Docker image from GHCR
       run: |
-        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-          gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}
+        # Try different tag formats that Stage 1 might have created
+        if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main; then
+          echo "Using main tag"
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main \
+            gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}
+        elif docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest; then
+          echo "Using latest tag"
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}
+        elif docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}; then
+          echo "Using main-{sha} tag"
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }} \
+            gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ needs.pre-deployment.outputs.image-tag }}
+        else
+          echo "Failed to pull any Docker image from GHCR"
+          exit 1
+        fi
     
     - name: Push to Google Container Registry
       run: |
