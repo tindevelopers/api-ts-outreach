@@ -119,6 +119,7 @@ jobs:
     - name: Configure Docker to use gcloud as a credential helper
       run: |
         gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+        gcloud auth configure-docker gcr.io --quiet
     
     - name: Verify authentication
       run: |
@@ -153,6 +154,7 @@ jobs:
     - name: Configure Docker to use gcloud as a credential helper
       run: |
         gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+        gcloud auth configure-docker gcr.io --quiet
     
     - name: Pull Docker image from GHCR
       run: |
