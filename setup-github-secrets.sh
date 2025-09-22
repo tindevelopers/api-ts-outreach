@@ -31,8 +31,8 @@ echo ""
 
 # 1. GCP_PROJECT_ID
 echo "1️⃣  Setting GCP_PROJECT_ID..."
-gh secret set GCP_PROJECT_ID --repo $REPO --body "endless-station-471909-a8"
-echo "   ✅ GCP_PROJECT_ID set to: endless-station-471909-a8"
+gh secret set GCP_PROJECT_ID --repo $REPO --body "api-outreach-as-a-service"
+echo "   ✅ GCP_PROJECT_ID set to: api-outreach-as-a-service"
 
 # 2. GCP_SA_KEY (Service Account Key)
 echo ""
