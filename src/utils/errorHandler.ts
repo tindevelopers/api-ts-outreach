@@ -22,7 +22,7 @@ export function createError(message: string, statusCode: number = 500): AppError
  */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    return getErrorMessage(error);
+    return error.message;
   }
   if (typeof error === 'string') {
     return error;

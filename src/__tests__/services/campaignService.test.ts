@@ -1,5 +1,5 @@
 import { campaignService } from '../../services/campaignService';
-import { CreateCampaignRequest, CampaignStatus } from '../../models/types';
+import { CreateCampaignRequest, CampaignStatus, SocialPlatform } from '../../models/types';
 
 describe('CampaignService', () => {
   beforeEach(() => {
@@ -12,12 +12,24 @@ describe('CampaignService', () => {
       const campaignData: CreateCampaignRequest = {
         name: 'Test Campaign',
         description: 'A test campaign',
-        targetAudience: 'Developers',
-        socialPlatforms: ['linkedin'],
+        platform: SocialPlatform.LINKEDIN,
         settings: {
-          maxConnectionsPerDay: 50,
-          delayBetweenActions: 5000,
-          retryAttempts: 3
+          workingHours: {
+            start: '09:00',
+            end: '17:00',
+            timezone: 'UTC',
+            weekdays: [1, 2, 3, 4, 5]
+          },
+          rateLimiting: {
+            maxConnectionsPerDay: 50,
+            maxMessagesPerDay: 100,
+            delayBetweenActions: 5000
+          },
+          personalization: {
+            useCustomMessages: true,
+            messageTemplates: ['Hello {name}!'],
+            includeCompanyInfo: true
+          }
         }
       };
 
@@ -34,8 +46,7 @@ describe('CampaignService', () => {
 
   describe('getCampaigns', () => {
     it('should return campaigns with pagination', async () => {
-      const result = await campaignService.getCampaigns({
-        userId: 'user123',
+      const result = await campaignService.getCampaigns('user123', {
         page: 1,
         limit: 10
       });
@@ -55,17 +66,29 @@ describe('CampaignService', () => {
       const campaignData: CreateCampaignRequest = {
         name: 'Test Campaign for Get',
         description: 'A test campaign for get by ID',
-        targetAudience: 'Developers',
-        socialPlatforms: ['linkedin'],
+        platform: SocialPlatform.LINKEDIN,
         settings: {
-          maxConnectionsPerDay: 50,
-          delayBetweenActions: 5000,
-          retryAttempts: 3
+          workingHours: {
+            start: '09:00',
+            end: '17:00',
+            timezone: 'UTC',
+            weekdays: [1, 2, 3, 4, 5]
+          },
+          rateLimiting: {
+            maxConnectionsPerDay: 50,
+            maxMessagesPerDay: 100,
+            delayBetweenActions: 5000
+          },
+          personalization: {
+            useCustomMessages: true,
+            messageTemplates: ['Hello {name}!'],
+            includeCompanyInfo: true
+          }
         }
       };
 
       const createdCampaign = await campaignService.createCampaign('user123', campaignData);
-      const retrievedCampaign = await campaignService.getCampaignById(createdCampaign.id);
+      const retrievedCampaign = await campaignService.getCampaignById('user123', createdCampaign.id);
 
       expect(retrievedCampaign).toBeDefined();
       expect(retrievedCampaign?.id).toBe(createdCampaign.id);
@@ -73,7 +96,7 @@ describe('CampaignService', () => {
     });
 
     it('should return null for non-existent campaign', async () => {
-      const campaign = await campaignService.getCampaignById('non-existent-id');
+      const campaign = await campaignService.getCampaignById('user123', 'non-existent-id');
       expect(campaign).toBeNull();
     });
   });
