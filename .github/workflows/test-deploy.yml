@@ -1,0 +1,91 @@
+name: Test Deploy to Google Cloud Run
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: api-outreach-as-a-service
+  SERVICE_NAME: api-outreach-service
+  REGION: us-east1
+
+jobs:
+  test-deploy:
+    name: Test Deploy
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Verify authentication
+      run: |
+        echo "Authenticated as:"
+        gcloud auth list
+        echo "Current project:"
+        gcloud config get-value project
+        echo "Service account info:"
+        gcloud auth print-access-token | head -c 20
+
+    - name: Test Docker build
+      run: |
+        echo "Testing Docker build..."
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:test .
+        echo "Docker build successful!"
+
+    - name: Configure Docker for GCR
+      run: |
+        gcloud auth configure-docker
+
+    - name: Test Docker push
+      run: |
+        echo "Testing Docker push..."
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:test
+        echo "Docker push successful!"
+
+    - name: Test Cloud Run deploy
+      run: |
+        echo "Testing Cloud Run deploy..."
+        gcloud run deploy ${{ env.SERVICE_NAME }}-test \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:test \
+          --platform managed \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }} \
+          --allow-unauthenticated \
+          --port 3000 \
+          --memory 512Mi \
+          --cpu 1 \
+          --min-instances 0 \
+          --max-instances 1 \
+          --timeout 300 \
+          --concurrency 80 \
+          --quiet
+        echo "Cloud Run deploy successful!"
+
+    - name: Get service URL
+      run: |
+        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }}-test \
+          --region=${{ env.REGION }} \
+          --project=${{ env.PROJECT_ID }} \
+          --format='value(status.url)')
+        echo "Test service deployed at: $SERVICE_URL"
+
+    - name: Cleanup test service
+      run: |
+        gcloud run services delete ${{ env.SERVICE_NAME }}-test \
+          --region=${{ env.REGION }} \
+          --project=${{ env.PROJECT_ID }} \
+          --quiet
+        echo "Test service cleaned up"
