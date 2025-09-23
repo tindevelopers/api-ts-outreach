@@ -1,10 +1,8 @@
 import { logger } from '@/utils/logger';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 import { 
   CampaignAnalytics, 
   LeadAnalytics, 
-  LeadInteraction,
-  CampaignStatus,
   LeadStatus
 } from '@/models/types';
 
@@ -191,7 +189,7 @@ class AnalyticsService {
       
       if (filters.campaignId) {
         // In real implementation, filter by campaign
-        filteredLeads = filteredLeads;
+        // filteredLeads = filteredLeads;
       }
 
       analytics.push(...filteredLeads.map(l => ({

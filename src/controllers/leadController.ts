@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 // import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
@@ -46,7 +46,6 @@ router.post('/', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     const _userId = (req as any).user.id;
@@ -59,7 +58,6 @@ router.post('/', async (req: Request, res: Response) => {
         message: 'Campaign ID is required',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     const leadData: CreateLeadRequest = value;
@@ -161,7 +159,6 @@ router.get('/:id', async (req: Request, res: Response) => {
         message: 'Lead not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     res.status(200).json({
@@ -202,12 +199,11 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     const _userId = (req as any).user.id;
     const leadId = req.params.id;
-    const updateData = value;
+        const _updateData = value;
 
     // TODO: Implement lead service
     const lead: Lead | null = null;
@@ -219,7 +215,6 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: 'Lead not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     logger.info('Lead updated successfully', {
@@ -271,7 +266,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
         message: 'Lead not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     logger.info('Lead deleted successfully', {

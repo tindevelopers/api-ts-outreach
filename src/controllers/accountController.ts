@@ -11,7 +11,7 @@ const router = Router();
  */
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+        const _userId = (req as any).user.id;
     
     // TODO: Implement account creation
     logger.info('Account creation requested', { userId });
@@ -47,7 +47,7 @@ router.post('/', async (req: Request, res: Response) => {
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+        const _userId = (req as any).user.id;
     
     // TODO: Implement account listing
     res.status(200).json({

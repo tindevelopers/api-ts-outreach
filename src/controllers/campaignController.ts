@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 // import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
@@ -76,7 +76,6 @@ router.post('/', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     const userId = (req as any).user.id;
@@ -179,7 +178,6 @@ router.get('/:id', async (req: Request, res: Response) => {
         message: 'Campaign not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     res.status(200).json({
@@ -220,7 +218,6 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     const userId = (req as any).user.id;
@@ -236,7 +233,6 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: 'Campaign not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     logger.info('Campaign updated successfully', {
@@ -287,7 +283,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
         message: 'Campaign not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     logger.info('Campaign deleted successfully', {

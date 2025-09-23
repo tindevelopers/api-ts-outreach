@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 import { logger } from '@/utils/logger';
 import { analyticsService } from '@/services/analyticsService';
 import { ApiResponse } from '@/models/types';

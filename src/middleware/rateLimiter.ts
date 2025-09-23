@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '@/utils/logger';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 
 // Simple in-memory rate limiter (in production, use Redis)
 const requestCounts = new Map<string, { count: number; resetTime: number }>();

@@ -1,11 +1,8 @@
 import { logger } from '@/utils/logger';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 import { 
-  Campaign, 
   Lead, 
   Workflow, 
-  CampaignSettings, 
-  WorkflowSettings,
   WorkflowStep,
   LeadStatus,
   CampaignStatus
@@ -302,10 +299,10 @@ export class GrowChiefService {
   /**
    * Make HTTP request to GrowChief API
    */
-  private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+  private async makeRequest(endpoint: string, options: any = {}): Promise<any> {
     const url = `${this.baseUrl}${endpoint}`;
     
-    const defaultOptions: RequestInit = {
+    const defaultOptions: any = {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.config.apiKey}`,

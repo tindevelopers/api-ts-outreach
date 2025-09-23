@@ -1,16 +1,10 @@
 import { Request, Response, Router } from 'express';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
 import { workflowService } from '@/services/workflowService';
 import { 
-  ApiResponse, 
-  CreateWorkflowRequest, 
-  Workflow, 
-  PaginatedResponse,
-  WorkflowStatus,
-  WorkflowStep,
-  WorkflowStepType
+  ApiResponse
 } from '@/models/types';
 
 const router = Router();
@@ -50,10 +44,9 @@ router.post('/', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
-    const userId = (req as any).user.id;
+        const _userId = (req as any).user.id;
     const { campaignId, ...workflowData } = value;
 
     // Validate workflow steps
@@ -65,7 +58,6 @@ router.post('/', async (req: Request, res: Response) => {
         message: validation.errors.join(', '),
         timestamp: new Date().toISOString()
       } as ApiResponse);
-    return;
     }
 
     const workflow = await workflowService.createWorkflow(campaignId, workflowData);
@@ -107,7 +99,7 @@ router.post('/', async (req: Request, res: Response) => {
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+        const _userId = (req as any).user.id;
     
     // TODO: Implement workflow listing
     res.status(200).json({

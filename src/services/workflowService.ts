@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { getErrorMessage, logError } from '@/utils/errorHandler';
+import { getErrorMessage } from '@/utils/errorHandler';
 import { logger } from '@/utils/logger';
 import { GrowChiefService } from '@/integrations/GrowChiefService';
 import { 
