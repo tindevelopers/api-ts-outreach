@@ -56,7 +56,6 @@ jobs:
 
     - name: Build application
       run: npm run build
-      continue-on-error: true
 
   deploy:
     name: Deploy to Cloud Run
@@ -81,10 +80,18 @@ jobs:
 
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        project_id: ${{ env.PROJECT_ID }}
 
     - name: Configure Docker to use gcloud as a credential helper
       run: |
         gcloud auth configure-docker
+
+    - name: Verify authentication
+      run: |
+        echo "Verifying Google Cloud authentication..."
+        gcloud auth list
+        gcloud config get-value project
 
     - name: Build and push Docker image
       run: |
