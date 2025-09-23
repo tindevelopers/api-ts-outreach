@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
 import { workflowService } from '@/services/workflowService';
@@ -49,6 +50,7 @@ router.post('/', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const userId = (req as any).user.id;
@@ -63,6 +65,7 @@ router.post('/', async (req: Request, res: Response) => {
         message: validation.errors.join(', '),
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const workflow = await workflowService.createWorkflow(campaignId, workflowData);
@@ -79,11 +82,12 @@ router.post('/', async (req: Request, res: Response) => {
       data: workflow,
       message: 'Workflow created successfully',
       timestamp: new Date().toISOString()
-    } as ApiResponse<Workflow>);
+    } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to create workflow', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -93,6 +97,7 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Failed to create workflow',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -110,10 +115,11 @@ router.get('/', async (req: Request, res: Response) => {
       data: [],
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get workflows', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -123,6 +129,7 @@ router.get('/', async (req: Request, res: Response) => {
       message: 'Failed to retrieve workflows',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 

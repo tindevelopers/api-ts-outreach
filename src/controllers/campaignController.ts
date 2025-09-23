@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 // import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
@@ -7,7 +8,8 @@ import {
   CreateCampaignRequest, 
   Campaign, 
   ApiResponse, 
-  PaginatedResponse 
+  PaginatedResponse,
+  CampaignStatus
 } from '@/models/types';
 
 const router = Router();
@@ -74,6 +76,7 @@ router.post('/', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const userId = (req as any).user.id;
@@ -92,11 +95,13 @@ router.post('/', async (req: Request, res: Response) => {
       data: campaign,
       message: 'Campaign created successfully',
       timestamp: new Date().toISOString()
-    } as ApiResponse<Campaign>);
+    } as ApiResponse);
+    return;
+    return;
 
   } catch (error) {
     logger.error('Failed to create campaign', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -106,6 +111,7 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Failed to create campaign',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -118,7 +124,7 @@ router.get('/', async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const status = req.query.status as string;
+    const status = req.query.status as CampaignStatus | undefined;
 
     const result = await campaignService.getCampaigns(userId, {
       page,
@@ -137,10 +143,11 @@ router.get('/', async (req: Request, res: Response) => {
       },
       timestamp: new Date().toISOString()
     } as PaginatedResponse<Campaign>);
+    return;
 
   } catch (error) {
     logger.error('Failed to get campaigns', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -150,6 +157,7 @@ router.get('/', async (req: Request, res: Response) => {
       message: 'Failed to retrieve campaigns',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -171,18 +179,20 @@ router.get('/:id', async (req: Request, res: Response) => {
         message: 'Campaign not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     res.status(200).json({
       success: true,
       data: campaign,
       timestamp: new Date().toISOString()
-    } as ApiResponse<Campaign>);
+    } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get campaign', {
       campaignId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -192,6 +202,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       message: 'Failed to retrieve campaign',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -209,6 +220,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const userId = (req as any).user.id;
@@ -224,6 +236,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: 'Campaign not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     logger.info('Campaign updated successfully', {
@@ -236,12 +249,13 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: campaign,
       message: 'Campaign updated successfully',
       timestamp: new Date().toISOString()
-    } as ApiResponse<Campaign>);
+    } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to update campaign', {
       campaignId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -251,6 +265,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       message: 'Failed to update campaign',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -272,6 +287,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
         message: 'Campaign not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     logger.info('Campaign deleted successfully', {
@@ -284,11 +300,12 @@ router.delete('/:id', async (req: Request, res: Response) => {
       message: 'Campaign deleted successfully',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to delete campaign', {
       campaignId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -298,6 +315,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       message: 'Failed to delete campaign',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -322,16 +340,17 @@ router.post('/:id/start', async (req: Request, res: Response) => {
       message: 'Campaign started successfully',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to start campaign', {
       campaignId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
-    const statusCode = error.message.includes('not found') ? 404 : 500;
-    const message = error.message.includes('not found') 
+    const statusCode = getErrorMessage(error).includes('not found') ? 404 : 500;
+    const message = getErrorMessage(error).includes('not found') 
       ? 'Campaign not found' 
       : 'Failed to start campaign';
 
@@ -341,6 +360,7 @@ router.post('/:id/start', async (req: Request, res: Response) => {
       message,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -365,16 +385,17 @@ router.post('/:id/pause', async (req: Request, res: Response) => {
       message: 'Campaign paused successfully',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to pause campaign', {
       campaignId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
-    const statusCode = error.message.includes('not found') ? 404 : 500;
-    const message = error.message.includes('not found') 
+    const statusCode = getErrorMessage(error).includes('not found') ? 404 : 500;
+    const message = getErrorMessage(error).includes('not found') 
       ? 'Campaign not found' 
       : 'Failed to pause campaign';
 
@@ -384,6 +405,7 @@ router.post('/:id/pause', async (req: Request, res: Response) => {
       message,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 

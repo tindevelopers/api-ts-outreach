@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { logger } from '@/utils/logger';
 import { GrowChiefService } from '@/integrations/GrowChiefService';
 import { 
@@ -159,7 +160,7 @@ class CampaignService {
       } catch (error) {
         logger.error('Failed to cancel campaign in GrowChief', {
           campaignId,
-          error: error.message
+          error: getErrorMessage(error)
         });
         // Continue with deletion even if GrowChief cancellation fails
       }
@@ -212,7 +213,7 @@ class CampaignService {
       campaign.updatedAt = new Date();
       this.campaigns.set(campaignId, campaign);
       
-      throw new Error(`Failed to start campaign: ${error.message}`);
+      throw new Error(`Failed to start campaign: ${getErrorMessage(error)}`);
     }
   }
 
@@ -288,7 +289,7 @@ class CampaignService {
     } catch (error) {
       logger.error('Failed to get campaign status from GrowChief', {
         campaignId,
-        error: error.message
+        error: getErrorMessage(error)
       });
       throw error;
     }

@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { logger } from '@/utils/logger';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { ApiResponse } from '@/models/types';
 
 const router = Router();
@@ -21,10 +22,12 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Account added successfully',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
+    logError(error, 'Failed to add account');
     logger.error('Failed to add account', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -34,6 +37,7 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Failed to add account',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -51,10 +55,12 @@ router.get('/', async (req: Request, res: Response) => {
       data: [],
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
+    logError(error, 'Failed to get accounts');
     logger.error('Failed to get accounts', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -64,6 +70,7 @@ router.get('/', async (req: Request, res: Response) => {
       message: 'Failed to retrieve accounts',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 

@@ -1,4 +1,5 @@
 import { logger } from '@/utils/logger';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { 
   CampaignAnalytics, 
   LeadAnalytics, 
@@ -121,7 +122,7 @@ class AnalyticsService {
       return analytics;
     } catch (error) {
       logger.error('Failed to get campaign analytics', {
-        error: error.message,
+        error: getErrorMessage(error),
         filters
       });
       throw error;
@@ -209,7 +210,7 @@ class AnalyticsService {
       return analytics;
     } catch (error) {
       logger.error('Failed to get lead analytics', {
-        error: error.message,
+        error: getErrorMessage(error),
         filters
       });
       throw error;
@@ -246,7 +247,7 @@ class AnalyticsService {
       return metrics;
     } catch (error) {
       logger.error('Failed to get campaign metrics', {
-        error: error.message,
+        error: getErrorMessage(error),
         filters
       });
       throw error;
@@ -284,7 +285,7 @@ class AnalyticsService {
       return metrics;
     } catch (error) {
       logger.error('Failed to get lead metrics', {
-        error: error.message,
+        error: getErrorMessage(error),
         filters
       });
       throw error;
@@ -316,7 +317,7 @@ class AnalyticsService {
       return metrics;
     } catch (error) {
       logger.error('Failed to get platform metrics', {
-        error: error.message,
+        error: getErrorMessage(error),
         filters
       });
       throw error;
@@ -355,7 +356,7 @@ class AnalyticsService {
       return trends;
     } catch (error) {
       logger.error('Failed to get performance trends', {
-        error: error.message,
+        error: getErrorMessage(error),
         filters
       });
       throw error;
@@ -387,7 +388,7 @@ class AnalyticsService {
       logger.error('Failed to record campaign event', {
         campaignId,
         event,
-        error: error.message
+        error: getErrorMessage(error)
       });
     }
   }
@@ -408,7 +409,7 @@ class AnalyticsService {
       logger.error('Failed to record lead event', {
         leadId,
         event,
-        error: error.message
+        error: getErrorMessage(error)
       });
     }
   }

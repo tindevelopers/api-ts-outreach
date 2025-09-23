@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 // import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
 import { logger } from '@/utils/logger';
@@ -45,6 +46,7 @@ router.post('/', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const _userId = (req as any).user.id;
@@ -57,6 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
         message: 'Campaign ID is required',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const leadData: CreateLeadRequest = value;
@@ -73,11 +76,12 @@ router.post('/', async (req: Request, res: Response) => {
       data: lead,
       message: 'Lead created successfully',
       timestamp: new Date().toISOString()
-    } as ApiResponse<Lead>);
+    } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to create lead', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -87,6 +91,7 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Failed to create lead',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -120,10 +125,11 @@ router.get('/', async (req: Request, res: Response) => {
       },
       timestamp: new Date().toISOString()
     } as PaginatedResponse<Lead>);
+    return;
 
   } catch (error) {
     logger.error('Failed to get leads', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -133,6 +139,7 @@ router.get('/', async (req: Request, res: Response) => {
       message: 'Failed to retrieve leads',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -154,18 +161,20 @@ router.get('/:id', async (req: Request, res: Response) => {
         message: 'Lead not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     res.status(200).json({
       success: true,
       data: lead,
       timestamp: new Date().toISOString()
-    } as ApiResponse<Lead>);
+    } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get lead', {
       leadId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -175,6 +184,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       message: 'Failed to retrieve lead',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -192,6 +202,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: error.details[0].message,
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     const _userId = (req as any).user.id;
@@ -208,11 +219,12 @@ router.put('/:id', async (req: Request, res: Response) => {
         message: 'Lead not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     logger.info('Lead updated successfully', {
       leadId,
-      userId
+      userId: (req as any).user.id
     });
 
     res.status(200).json({
@@ -220,12 +232,13 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: lead,
       message: 'Lead updated successfully',
       timestamp: new Date().toISOString()
-    } as ApiResponse<Lead>);
+    } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to update lead', {
       leadId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -235,6 +248,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       message: 'Failed to update lead',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -257,11 +271,12 @@ router.delete('/:id', async (req: Request, res: Response) => {
         message: 'Lead not found',
         timestamp: new Date().toISOString()
       } as ApiResponse);
+    return;
     }
 
     logger.info('Lead deleted successfully', {
       leadId,
-      userId
+      userId: (req as any).user.id
     });
 
     res.status(200).json({
@@ -269,11 +284,12 @@ router.delete('/:id', async (req: Request, res: Response) => {
       message: 'Lead deleted successfully',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to delete lead', {
       leadId: req.params.id,
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -283,6 +299,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       message: 'Failed to delete lead',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 

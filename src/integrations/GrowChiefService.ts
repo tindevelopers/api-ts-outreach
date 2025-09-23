@@ -1,4 +1,5 @@
 import { logger } from '@/utils/logger';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { 
   Campaign, 
   Lead, 
@@ -73,9 +74,9 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('Failed to create GrowChief workflow', {
         workflowId: workflow.id,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to create workflow: ${error.message}`);
+      throw new Error(`Failed to create workflow: ${getErrorMessage(error)}`);
     }
   }
 
@@ -100,9 +101,9 @@ export class GrowChiefService {
       logger.error('Failed to execute campaign', {
         campaignId,
         workflowId,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to execute campaign: ${error.message}`);
+      throw new Error(`Failed to execute campaign: ${getErrorMessage(error)}`);
     }
   }
 
@@ -135,9 +136,9 @@ export class GrowChiefService {
       logger.error('Failed to add leads to campaign', {
         campaignId,
         leadCount: leads.length,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to add leads: ${error.message}`);
+      throw new Error(`Failed to add leads: ${getErrorMessage(error)}`);
     }
   }
 
@@ -164,9 +165,9 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('Failed to get campaign status', {
         campaignId,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to get campaign status: ${error.message}`);
+      throw new Error(`Failed to get campaign status: ${getErrorMessage(error)}`);
     }
   }
 
@@ -201,9 +202,9 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('Failed to get lead status', {
         leadId,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to get lead status: ${error.message}`);
+      throw new Error(`Failed to get lead status: ${getErrorMessage(error)}`);
     }
   }
 
@@ -220,9 +221,9 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('Failed to pause campaign', {
         campaignId,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to pause campaign: ${error.message}`);
+      throw new Error(`Failed to pause campaign: ${getErrorMessage(error)}`);
     }
   }
 
@@ -239,9 +240,9 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('Failed to resume campaign', {
         campaignId,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to resume campaign: ${error.message}`);
+      throw new Error(`Failed to resume campaign: ${getErrorMessage(error)}`);
     }
   }
 
@@ -258,9 +259,9 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('Failed to cancel campaign', {
         campaignId,
-        error: error.message
+        error: getErrorMessage(error)
       });
-      throw new Error(`Failed to cancel campaign: ${error.message}`);
+      throw new Error(`Failed to cancel campaign: ${getErrorMessage(error)}`);
     }
   }
 
@@ -319,7 +320,7 @@ export class GrowChiefService {
       const response = await fetch(url, requestOptions);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = await response.json().catch(() => ({})) as any;
         throw new Error(`HTTP ${response.status}: ${errorData.message || response.statusText}`);
       }
 
@@ -327,7 +328,7 @@ export class GrowChiefService {
     } catch (error) {
       logger.error('GrowChief API request failed', {
         endpoint,
-        error: error.message
+        error: getErrorMessage(error)
       });
       throw error;
     }

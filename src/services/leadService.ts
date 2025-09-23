@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { logger } from '@/utils/logger';
 import { GrowChiefService } from '@/integrations/GrowChiefService';
 import { 
@@ -197,7 +198,7 @@ class LeadService {
       lead.updatedAt = new Date();
       this.leads.set(leadId, lead);
       
-      throw new Error(`Failed to process lead: ${error.message}`);
+      throw new Error(`Failed to process lead: ${getErrorMessage(error)}`);
     }
   }
 
@@ -217,7 +218,7 @@ class LeadService {
     } catch (error) {
       logger.error('Failed to get lead status from GrowChief', {
         leadId,
-        error: error.message
+        error: getErrorMessage(error)
       });
       throw error;
     }

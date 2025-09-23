@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '@/utils/logger';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 
 export interface ApiError extends Error {
   statusCode?: number;
@@ -14,7 +15,7 @@ export const errorHandler = (
 ) => {
   // Log error
   logger.error('API Error', {
-    error: error.message,
+    error: getErrorMessage(error),
     stack: error.stack,
     url: req.url,
     method: req.method,
@@ -25,7 +26,7 @@ export const errorHandler = (
 
   // Default error response
   let statusCode = error.statusCode || 500;
-  let message = error.message || 'Internal Server Error';
+  let message = getErrorMessage(error) || 'Internal Server Error';
 
   // Handle specific error types
   if (error.name === 'ValidationError') {

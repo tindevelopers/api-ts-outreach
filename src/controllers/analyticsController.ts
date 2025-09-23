@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { logger } from '@/utils/logger';
 import { analyticsService } from '@/services/analyticsService';
 import { ApiResponse } from '@/models/types';
@@ -32,10 +33,11 @@ router.get('/campaigns', async (req: Request, res: Response) => {
       data: analytics,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get campaign analytics', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -45,6 +47,7 @@ router.get('/campaigns', async (req: Request, res: Response) => {
       message: 'Failed to retrieve campaign analytics',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -73,10 +76,11 @@ router.get('/leads', async (req: Request, res: Response) => {
       data: analytics,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get lead analytics', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -86,6 +90,7 @@ router.get('/leads', async (req: Request, res: Response) => {
       message: 'Failed to retrieve lead analytics',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -114,10 +119,11 @@ router.get('/campaigns/metrics', async (req: Request, res: Response) => {
       data: metrics,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get campaign metrics', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -127,6 +133,7 @@ router.get('/campaigns/metrics', async (req: Request, res: Response) => {
       message: 'Failed to retrieve campaign metrics',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -155,10 +162,11 @@ router.get('/leads/metrics', async (req: Request, res: Response) => {
       data: metrics,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get lead metrics', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -168,6 +176,7 @@ router.get('/leads/metrics', async (req: Request, res: Response) => {
       message: 'Failed to retrieve lead metrics',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -194,10 +203,11 @@ router.get('/platforms', async (req: Request, res: Response) => {
       data: metrics,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get platform metrics', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -207,6 +217,7 @@ router.get('/platforms', async (req: Request, res: Response) => {
       message: 'Failed to retrieve platform metrics',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 
@@ -233,10 +244,11 @@ router.get('/trends', async (req: Request, res: Response) => {
       data: trends,
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
 
   } catch (error) {
     logger.error('Failed to get performance trends', {
-      error: error.message,
+      error: getErrorMessage(error),
       userId: (req as any).user.id
     });
 
@@ -246,6 +258,7 @@ router.get('/trends', async (req: Request, res: Response) => {
       message: 'Failed to retrieve performance trends',
       timestamp: new Date().toISOString()
     } as ApiResponse);
+    return;
   }
 });
 

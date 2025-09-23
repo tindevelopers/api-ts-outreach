@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { logger } from '@/utils/logger';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -10,7 +11,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     
@@ -39,7 +40,7 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
     // For Google IAM authentication (longer tokens)
     if (token.length > 100) {
       // This is likely a Google IAM token, validate it
-      const user = validateGoogleIAMToken(token);
+      const user = await validateGoogleIAMToken(token);
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -50,7 +51,7 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
       }
       
       req.user = user;
-      return next();
+      next();
     }
 
     // For API key authentication (shorter tokens)
@@ -67,11 +68,21 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
       }
       
       req.user = user;
-      return next();
+      next();
     }
 
     // For JWT authentication
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'JWT configuration error',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    const decoded = jwt.verify(token, secret) as any;
     req.user = {
       id: decoded.id,
       email: decoded.email,
@@ -80,8 +91,9 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
 
     next();
   } catch (error) {
+    logError(error, 'Authentication failed');
     logger.error('Authentication failed', {
-      error: error.message,
+      error: getErrorMessage(error),
       ip: req.ip,
       userAgent: req.get('User-Agent')
     });
@@ -93,6 +105,9 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
       timestamp: new Date().toISOString()
     });
   }
+  
+  // This should never be reached, but TypeScript needs it
+  return;
 };
 
 /**
@@ -140,9 +155,7 @@ async function validateGoogleIAMToken(token: string): Promise<{ id: string; emai
       apiKey: token
     };
   } catch (error) {
-    logger.error('Failed to validate Google IAM token', {
-      error: error.message
-    });
+    logError(error, 'Failed to validate Google IAM token');
     return null;
   }
 }
@@ -151,15 +164,19 @@ async function validateGoogleIAMToken(token: string): Promise<{ id: string; emai
  * Generate JWT token for user
  */
 export const generateToken = (user: { id: string; email: string; apiKey: string }): string => {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      apiKey: user.apiKey
-    },
-    process.env.JWT_SECRET!,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-  );
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
+  
+  const payload = {
+    id: user.id,
+    email: user.email,
+    apiKey: user.apiKey
+  };
+  
+  // @ts-ignore - Temporary fix for JWT type issue
+  return jwt.sign(payload, secret, { expiresIn: '24h' });
 };
 
 /**

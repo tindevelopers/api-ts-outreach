@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '@/utils/logger';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 
 // Simple in-memory rate limiter (in production, use Redis)
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
@@ -59,7 +60,7 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction): vo
     next();
   } catch (error) {
     logger.error('Rate limiter error', {
-      error: error instanceof Error ? error.message : String(error),
+      error: error instanceof Error ? getErrorMessage(error) : String(error),
       ip: req.ip
     });
     

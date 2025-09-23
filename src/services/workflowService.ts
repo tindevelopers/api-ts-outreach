@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { getErrorMessage, logError } from '@/utils/errorHandler';
 import { logger } from '@/utils/logger';
 import { GrowChiefService } from '@/integrations/GrowChiefService';
 import { 
@@ -195,7 +196,7 @@ class WorkflowService {
       workflow.updatedAt = new Date();
       this.workflows.set(workflowId, workflow);
       
-      throw new Error(`Failed to activate workflow: ${error.message}`);
+      throw new Error(`Failed to activate workflow: ${getErrorMessage(error)}`);
     }
   }
 
